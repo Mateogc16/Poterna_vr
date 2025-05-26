@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
 public class XRHighlighter : MonoBehaviour
@@ -28,18 +28,19 @@ public class XRHighlighter : MonoBehaviour
 
     private void OnHoverEntered(HoverEnterEventArgs args)
     {
-        var target = args.interactableObject.transform.GetComponent<Renderer>();
-        if (target != null)
+        // 🔍 Busca el Renderer en el objeto o sus hijos
+        var targetRenderer = args.interactableObject.transform.GetComponentInChildren<Renderer>();
+        if (targetRenderer != null)
         {
-            currentRenderer = target;
-            originalMaterials = target.materials;
+            currentRenderer = targetRenderer;
+            originalMaterials = targetRenderer.materials;
 
-            // Crear nuevo arreglo con el mismo n�mero de materiales pero todos de highlight
+            // Cambia todos los materiales por el resaltado
             Material[] highlightMaterials = new Material[originalMaterials.Length];
             for (int i = 0; i < highlightMaterials.Length; i++)
                 highlightMaterials[i] = highlightMaterial;
 
-            target.materials = highlightMaterials;
+            targetRenderer.materials = highlightMaterials;
         }
     }
 
