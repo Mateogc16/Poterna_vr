@@ -1,59 +1,64 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(HingeJoint))]
+public class BolaDePinchos : MonoBehaviour
 {
-    public static AudioManager instancia;
-
-    public AudioSource efectosSonido;
-    public AudioSource musicaFondo;
-    public List<AudioClip> listaSonidos; // Lista de sonidos asignados desde el Inspector
-    private Dictionary<string, AudioClip> sonidosDict = new Dictionary<string, AudioClip>();
+    private Rigidbody rb;
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
+    private bool isActive = false;
+    public float initialPushForce = 1.5f;
 
     void Awake()
     {
-        if (instancia == null)
-        {
-            instancia = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        rb = GetComponent<Rigidbody>();
+        initialPosition = transform.position;
+        initialRotation = transform.rotation;
 
-        DontDestroyOnLoad(gameObject);
-
-        // Llenar el diccionario con los sonidos
-        foreach (AudioClip clip in listaSonidos)
+        if (!CompareTag("Trampa"))
         {
-            sonidosDict[clip.name] = clip;
+            UnityEngine.Debug.LogWarning("La BolaDePinchos '" + gameObject.name + "' no tiene el tag 'Trampa'. No dañará al jugador.", this);
         }
     }
 
-    public void ReproducirSonido(string nombre)
+    void Start()
     {
-        if (sonidosDict.ContainsKey(nombre) && efectosSonido)
+        ResetTrapInternal(false);
+    }
+
+    public void ActivarBalanceo(Vector3 targetPlayerPosition)
+    {
+        if (isActive) return;
+
+        UnityEngine.Debug.Log("BolaDePinchos '" + gameObject.name + "' activada. Soltando para oscilar.");
+        isActive = true;
+        rb.isKinematic = false;
+
+        if (initialPushForce > 0)
         {
-            efectosSonido.PlayOneShot(sonidosDict[nombre]);
+            Vector3 directionToTarget = (targetPlayerPosition - transform.position).normalized;
+            rb.AddForce(directionToTarget * initialPushForce, ForceMode.Impulse);
         }
     }
 
-    public void ReproducirMusica(string nombre, bool enBucle = true)
+    private void ResetTrapInternal(bool logMessage)
     {
-        if (sonidosDict.ContainsKey(nombre) && musicaFondo)
+        isActive = false;
+        rb.isKinematic = true;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        transform.position = initialPosition;
+        transform.rotation = initialRotation;
+
+        if (logMessage)
         {
-            musicaFondo.clip = sonidosDict[nombre];
-            musicaFondo.loop = enBucle;
-            musicaFondo.Play();
+            UnityEngine.Debug.Log("BolaDePinchos '" + gameObject.name + "' reseteada.");
         }
     }
 
-    public void DetenerMusica()
+    public void ResetearTrampa()
     {
-        if (musicaFondo)
-        {
-            musicaFondo.Stop();
-        }
+        ResetTrapInternal(true);
     }
 }

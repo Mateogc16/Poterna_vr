@@ -3,8 +3,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class ObjetoInteractuable : MonoBehaviour
 {
-    public Material materialResaltado; // Material cuando el objeto es seleccionado
-    private Material materialOriginal; // Material original del objeto
+    public Material materialResaltado; 
+    private Material materialOriginal; 
     private Renderer objetoRenderer;
 
     void Start()
@@ -12,7 +12,7 @@ public class ObjetoInteractuable : MonoBehaviour
         objetoRenderer = GetComponent<Renderer>();
         if (objetoRenderer != null)
         {
-            materialOriginal = objetoRenderer.material; // Guarda el material original
+            materialOriginal = objetoRenderer.material; 
         }
     }
 
@@ -20,7 +20,7 @@ public class ObjetoInteractuable : MonoBehaviour
     {
         if (objetoRenderer != null && materialResaltado != null)
         {
-            objetoRenderer.material = materialResaltado; // Cambia al material resaltado
+            objetoRenderer.material = materialResaltado; 
         }
     }
 
@@ -28,7 +28,7 @@ public class ObjetoInteractuable : MonoBehaviour
     {
         if (objetoRenderer != null)
         {
-            objetoRenderer.material = materialOriginal; // Vuelve al material original
+            objetoRenderer.material = materialOriginal; 
         }
     }
 }

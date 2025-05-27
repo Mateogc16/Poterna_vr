@@ -27,10 +27,10 @@ public class KeyPickupDoorTrigger : MonoBehaviour
     {
         if (doorOpened) return;
 
-        // ✅ Desactiva la puerta
+      
         if (doorObject != null)
         {
-            doorObject.SetActive(false);  // Esto la oculta completamente
+            doorObject.SetActive(false);  
         }
 
         doorOpened = true;

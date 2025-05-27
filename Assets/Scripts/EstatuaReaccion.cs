@@ -3,10 +3,10 @@ using System.Collections;
 
 public class EstatuaReaccion : MonoBehaviour
 {
-    public GameObject puerta;                    // Arrastra aquí la puerta con el script ControladorPuerta
-    public AudioSource audioSource;              // Fuente de audio en la estatua
-    public AudioClip sonidoActivacion;           // Sonido a reproducir cuando el corazón la toca
-    public string tagCorazon = "Corazon";        // Asegúrate de que el corazón tenga este tag
+    public GameObject puerta;                    
+    public AudioSource audioSource;             
+    public AudioClip sonidoActivacion;          
+    public string tagCorazon = "Corazon";        
 
     private bool activado = false;
 

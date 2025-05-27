@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class ObjetoRecogible : MonoBehaviour
 {
-    public string nombreObjeto; // Nombre del objeto (definir en el Inspector)
+    public string nombreObjeto; 
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player")) // Asegurarse de que el jugador está interactuando
+        if (other.CompareTag("Player")) 
         {
             Inventario inventario = other.GetComponent<Inventario>();
 
@@ -14,7 +14,7 @@ public class ObjetoRecogible : MonoBehaviour
             {
                 inventario.AddItem(nombreObjeto);
                 UnityEngine.Debug.Log("Objeto recogido: " + nombreObjeto);
-                Destroy(gameObject); // Eliminar el objeto de la escena
+                Destroy(gameObject); 
             }
         }
     }

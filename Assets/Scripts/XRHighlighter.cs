@@ -28,14 +28,14 @@ public class XRHighlighter : MonoBehaviour
 
     private void OnHoverEntered(HoverEnterEventArgs args)
     {
-        // 🔍 Busca el Renderer en el objeto o sus hijos
+        
         var targetRenderer = args.interactableObject.transform.GetComponentInChildren<Renderer>();
         if (targetRenderer != null)
         {
             currentRenderer = targetRenderer;
             originalMaterials = targetRenderer.materials;
 
-            // Cambia todos los materiales por el resaltado
+            
             Material[] highlightMaterials = new Material[originalMaterials.Length];
             for (int i = 0; i < highlightMaterials.Length; i++)
                 highlightMaterials[i] = highlightMaterial;

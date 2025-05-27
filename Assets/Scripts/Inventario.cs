@@ -18,7 +18,7 @@ public class Inventario : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Recogible")) // Verifica si el objeto es recogible
+        if (other.CompareTag("Recogible")) 
         {
             ObjetoRecogible objeto = other.GetComponent<ObjetoRecogible>();
 
@@ -26,7 +26,7 @@ public class Inventario : MonoBehaviour
             {
                 AddItem(objeto.nombreObjeto);
                 UnityEngine.Debug.Log("Objeto recogido: " + objeto.nombreObjeto);
-                Destroy(other.gameObject); // Eliminar el objeto de la escena
+                Destroy(other.gameObject); 
             }
         }
     }
