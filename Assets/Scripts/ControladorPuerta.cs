@@ -1,5 +1,5 @@
 using UnityEngine;
-using TMPro;
+using TMPro; // Asegúrate de tener TextMeshPro importado si lo usas
 
 public class ControladorPuerta : MonoBehaviour
 {
@@ -14,7 +14,7 @@ public class ControladorPuerta : MonoBehaviour
 
     public bool requiereItem = false;
     public string requiredItem;
-    private Inventario inventario;
+    private Inventario inventario; // Asegúrate de que tienes una clase Inventario en tu proyecto
 
     public GameObject mensajePanel;
     public TextMeshProUGUI mensajeTexto;
@@ -25,13 +25,14 @@ public class ControladorPuerta : MonoBehaviour
 
     void Start()
     {
-        rotacionInicial = Quaternion.Euler(0, 0, 0);
-        rotacionFinal = Quaternion.Euler(0, anguloApertura, 0);
+        rotacionInicial = transform.rotation;
+        rotacionFinal = rotacionInicial * Quaternion.Euler(0, anguloApertura, 0);
 
         inventario = jugador != null ? jugador.GetComponent<Inventario>() : null;
         if (requiereItem && inventario == null)
         {
-            Debug.LogError("El jugador no tiene un Inventario asignado.");
+            // CORRECCIÓN AQUÍ:
+            UnityEngine.Debug.LogError("El jugador no tiene un Inventario asignado o el componente Inventario no se encontró en el jugador.");
         }
 
         if (mensajePanel != null)
@@ -60,7 +61,8 @@ public class ControladorPuerta : MonoBehaviour
                     if (mensajePanel != null)
                         mensajePanel.SetActive(false);
 
-                    Debug.Log("¡Puerta abierta!");
+                    // CORRECCIÓN AQUÍ:
+                    UnityEngine.Debug.Log("¡Puerta abierta!");
                 }
                 else
                 {
@@ -69,8 +71,8 @@ public class ControladorPuerta : MonoBehaviour
                         mensajeTexto.text = "Necesitas " + requiredItem + " para continuar.";
                         mensajePanel.SetActive(true);
                     }
-
-                    Debug.Log("Necesitas " + requiredItem + " para abrir esta puerta.");
+                    // CORRECCIÓN AQUÍ:
+                    UnityEngine.Debug.Log("Necesitas " + requiredItem + " para abrir esta puerta.");
                 }
             }
         }
@@ -80,13 +82,20 @@ public class ControladorPuerta : MonoBehaviour
             {
                 mensajePanel.SetActive(false);
             }
+
+            // Lógica opcional para cerrar la puerta si el jugador se aleja:
+            // if (puertaAbierta && !requiereItem)
+            // {
+            //     puertaAbierta = false;
+            //     if (audioSource && sonidoCierre)
+            //         audioSource.PlayOneShot(sonidoCierre);
+            //     UnityEngine.Debug.Log("¡Puerta cerrada por distancia!"); // También necesitaría UnityEngine.Debug aquí
+            // }
         }
 
-        // Mantiene rotación animada si la puerta está abierta
         transform.rotation = Quaternion.Lerp(transform.rotation, puertaAbierta ? rotacionFinal : rotacionInicial, Time.deltaTime * velocidadApertura);
     }
 
-    // NUEVO: Permite abrir la puerta desde otros scripts
     public void ForzarApertura()
     {
         if (!puertaAbierta)
@@ -99,7 +108,22 @@ public class ControladorPuerta : MonoBehaviour
             if (mensajePanel != null)
                 mensajePanel.SetActive(false);
 
-            Debug.Log("¡Puerta abierta forzada!");
+            // CORRECCIÓN AQUÍ:
+            UnityEngine.Debug.Log("¡Puerta abierta forzada!");
+        }
+    }
+
+    public void ForzarCierre()
+    {
+        if (puertaAbierta)
+        {
+            puertaAbierta = false;
+
+            if (audioSource && sonidoCierre)
+                audioSource.PlayOneShot(sonidoCierre);
+
+            // CORRECCIÓN AQUÍ:
+            UnityEngine.Debug.Log("¡Puerta cerrada forzada!");
         }
     }
 }
