@@ -12,12 +12,12 @@ public class ControladorPuerta : MonoBehaviour
     public AudioClip sonidoApertura;
     public AudioClip sonidoCierre;
 
-    public bool requiereItem = false; // ¿La puerta necesita un ítem para abrirse?
-    public string requiredItem; // Nombre del ítem necesario (si `requiereItem` es `true`)
+    public bool requiereItem = false;
+    public string requiredItem;
     private Inventario inventario;
 
-    public GameObject mensajePanel; // Panel de mensaje en la UI
-    public TextMeshProUGUI mensajeTexto; // Texto dentro del panel
+    public GameObject mensajePanel;
+    public TextMeshProUGUI mensajeTexto;
 
     private Quaternion rotacionInicial;
     private Quaternion rotacionFinal;
@@ -28,10 +28,10 @@ public class ControladorPuerta : MonoBehaviour
         rotacionInicial = Quaternion.Euler(0, 0, 0);
         rotacionFinal = Quaternion.Euler(0, anguloApertura, 0);
 
-        inventario = jugador.GetComponent<Inventario>();
-        if (inventario == null)
+        inventario = jugador != null ? jugador.GetComponent<Inventario>() : null;
+        if (requiereItem && inventario == null)
         {
-            UnityEngine.Debug.LogError("El jugador no tiene un Inventario asignado.");
+            Debug.LogError("El jugador no tiene un Inventario asignado.");
         }
 
         if (mensajePanel != null)
@@ -42,6 +42,8 @@ public class ControladorPuerta : MonoBehaviour
 
     void Update()
     {
+        if (jugador == null) return;
+
         float distancia = Vector3.Distance(transform.position, jugador.position);
 
         if (distancia < distanciaApertura)
@@ -51,13 +53,14 @@ public class ControladorPuerta : MonoBehaviour
                 if (!requiereItem || (inventario != null && inventario.HasItem(requiredItem)))
                 {
                     puertaAbierta = true;
-                    if (audioSource && sonidoApertura) audioSource.PlayOneShot(sonidoApertura);
-                    UnityEngine.Debug.Log("Puerta abierta!");
+
+                    if (audioSource && sonidoApertura)
+                        audioSource.PlayOneShot(sonidoApertura);
 
                     if (mensajePanel != null)
-                    {
                         mensajePanel.SetActive(false);
-                    }
+
+                    Debug.Log("¡Puerta abierta!");
                 }
                 else
                 {
@@ -66,19 +69,37 @@ public class ControladorPuerta : MonoBehaviour
                         mensajeTexto.text = "Necesitas " + requiredItem + " para continuar.";
                         mensajePanel.SetActive(true);
                     }
-                    UnityEngine.Debug.Log("Necesitas " + requiredItem + " para abrir esta puerta.");
+
+                    Debug.Log("Necesitas " + requiredItem + " para abrir esta puerta.");
                 }
             }
         }
         else
         {
-            // Si el jugador se aleja, ocultar el mensaje del HUD
             if (mensajePanel != null)
             {
                 mensajePanel.SetActive(false);
             }
         }
 
+        // Mantiene rotación animada si la puerta está abierta
         transform.rotation = Quaternion.Lerp(transform.rotation, puertaAbierta ? rotacionFinal : rotacionInicial, Time.deltaTime * velocidadApertura);
+    }
+
+    // NUEVO: Permite abrir la puerta desde otros scripts
+    public void ForzarApertura()
+    {
+        if (!puertaAbierta)
+        {
+            puertaAbierta = true;
+
+            if (audioSource && sonidoApertura)
+                audioSource.PlayOneShot(sonidoApertura);
+
+            if (mensajePanel != null)
+                mensajePanel.SetActive(false);
+
+            Debug.Log("¡Puerta abierta forzada!");
+        }
     }
 }
