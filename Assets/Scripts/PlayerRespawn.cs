@@ -73,7 +73,7 @@ public class PlayerRespawn : MonoBehaviour
         }
     }
 
-    void Morir()
+    public void Morir()
     {
         if (estaMuerto) return; // Si ya está muerto, no hacer nada
 

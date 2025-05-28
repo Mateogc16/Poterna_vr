@@ -1,7 +1,5 @@
 using UnityEngine;
-// using System.Collections.Generic; // No es estrictamente necesario para esta versión simplificada
-// Si tienes "using System.Net.Mime;" o "using System.Net;", podrías quitarlos si no los necesitas,
-// o mantenerlos y usar la corrección de abajo.
+// using System.Collections.Generic; // No es estrictamente necesario para esta versión
 
 public class AudioManager : MonoBehaviour
 {
@@ -9,15 +7,12 @@ public class AudioManager : MonoBehaviour
     public AudioClip latidoCorazonClip;
     public AudioClip ambientacion1Clip;
     public AudioClip ambientacion2Clip;
-    public AudioClip musicaPersecucionClip; // Música que puede ser continua
+    public AudioClip musicaPersecucionClip;
 
     [Header("----- Clips de Efectos de Sonido (SFX) -----")]
-    // SFX Originales
     public AudioClip abrirPuertaClip;
     public AudioClip cerrarPuertaClip;
     public AudioClip recogerObjetoClip;
-
-    // Nuevos SFX Solicitados
     public AudioClip papelClip;
     public AudioClip gritoEstatuaClip;
     public AudioClip sonidoMuerteClip;
@@ -39,12 +34,10 @@ public class AudioManager : MonoBehaviour
     [Tooltip("AudioSource secundario para SFX (opcional, para más concurrencia o tipos)")]
     public AudioSource efectosSonidoSource2;
 
-
     public static AudioManager instance;
 
     void Awake()
     {
-        // Configuración del Singleton
         if (instance == null)
         {
             instance = this;
@@ -55,7 +48,6 @@ public class AudioManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
         SetupContinuousSounds();
         SetupSFXSources();
     }
@@ -65,7 +57,7 @@ public class AudioManager : MonoBehaviour
         ConfigureAudioSource(latidoCorazonSource, latidoCorazonClip, true, true, 0.8f, "Latido Corazón Source");
         ConfigureAudioSource(ambientacion1Source, ambientacion1Clip, true, true, 0.6f, "Ambientación 1 Source");
         ConfigureAudioSource(ambientacion2Source, ambientacion2Clip, true, true, 0.5f, "Ambientación 2 Source");
-        ConfigureAudioSource(musicaPersecucionSource, musicaPersecucionClip, true, false, 0.7f, "Música Persecución Source"); // playOnAwake = false, se controla por script
+        ConfigureAudioSource(musicaPersecucionSource, musicaPersecucionClip, true, false, 0.7f, "Música Persecución Source");
     }
 
     void SetupSFXSources()
@@ -73,29 +65,25 @@ public class AudioManager : MonoBehaviour
         efectosSonidoSource = EnsureAudioSourceExists(efectosSonidoSource, "Efectos Sonido Principal Source");
         if (efectosSonidoSource != null) efectosSonidoSource.playOnAwake = false;
 
-        efectosSonidoSource2 = EnsureAudioSourceExists(efectosSonidoSource2, "Efectos Sonido Secundario Source", true); // true para opcional
+        efectosSonidoSource2 = EnsureAudioSourceExists(efectosSonidoSource2, "Efectos Sonido Secundario Source", true);
         if (efectosSonidoSource2 != null) efectosSonidoSource2.playOnAwake = false;
     }
 
-    // Método ayudante para configurar AudioSources continuos
     void ConfigureAudioSource(AudioSource source, AudioClip clip, bool loop, bool playOnAwake, float volume, string sourceNameForDebug)
     {
-        if (source == null)
+        if (source == null && clip != null)
         {
-            if (clip != null)
-            {
-                UnityEngine.Debug.LogWarning($"AudioManager: {sourceNameForDebug} no asignado en el Inspector. Intentando crear uno nuevo en este GameObject.");
-                source = gameObject.AddComponent<AudioSource>();
-                if (sourceNameForDebug.Contains("Latido")) this.latidoCorazonSource = source;
-                else if (sourceNameForDebug.Contains("Ambientación 1")) this.ambientacion1Source = source;
-                else if (sourceNameForDebug.Contains("Ambientación 2")) this.ambientacion2Source = source;
-                else if (sourceNameForDebug.Contains("Persecución")) this.musicaPersecucionSource = source;
-
-            }
-            else
-            {
-                return;
-            }
+            UnityEngine.Debug.LogWarning($"AudioManager: {sourceNameForDebug} no asignado en el Inspector. Creando uno nuevo en AudioManager para el clip '{clip.name}'. Es recomendable asignar los AudioSources manualmente.");
+            source = gameObject.AddComponent<AudioSource>();
+            if (sourceNameForDebug.Contains("Latido")) this.latidoCorazonSource = source;
+            else if (sourceNameForDebug.Contains("Ambientación 1")) this.ambientacion1Source = source;
+            else if (sourceNameForDebug.Contains("Ambientación 2")) this.ambientacion2Source = source;
+            else if (sourceNameForDebug.Contains("Persecución")) this.musicaPersecucionSource = source;
+        }
+        else if (source == null)
+        {
+            if (clip != null) UnityEngine.Debug.LogWarning($"AudioManager: {sourceNameForDebug} no asignado en el Inspector y no se pudo crear dinámicamente, pero el Clip sí existe. El sonido '{clip.name}' no se reproducirá.");
+            return;
         }
 
         if (clip != null)
@@ -104,26 +92,20 @@ public class AudioManager : MonoBehaviour
             source.loop = loop;
             source.playOnAwake = playOnAwake;
             source.volume = volume;
-            // AQUÍ ESTÁ LA CORRECCIÓN:
             if (playOnAwake && UnityEngine.Application.isPlaying && !source.isPlaying)
             {
                 source.Play();
             }
         }
-        else if (source != null)
-        {
-            // UnityEngine.Debug.Log($"AudioManager: {sourceNameForDebug} asignado pero sin AudioClip.");
-        }
     }
 
-    // Método ayudante para asegurar que un AudioSource para SFX exista
     AudioSource EnsureAudioSourceExists(AudioSource source, string sourceNameForDebug, bool isOptional = false)
     {
         if (source == null)
         {
             if (!isOptional)
             {
-                UnityEngine.Debug.LogWarning($"AudioManager: {sourceNameForDebug} no asignado en el Inspector. Creando uno nuevo para este AudioManager. Considera asignarlo manually para mejor control.");
+                UnityEngine.Debug.LogWarning($"AudioManager: {sourceNameForDebug} no asignado en el Inspector. Creando uno nuevo.");
                 source = gameObject.AddComponent<AudioSource>();
                 if (sourceNameForDebug.Contains("Principal")) this.efectosSonidoSource = source;
             }
@@ -135,30 +117,23 @@ public class AudioManager : MonoBehaviour
         return source;
     }
 
-
-    // --- Métodos Públicos para reproducir SFX ---
-
     private void PlaySFX(AudioClip clip, AudioSource specificSource = null)
     {
         AudioSource sourceToUse = specificSource != null ? specificSource : efectosSonidoSource;
-
         if (sourceToUse != null && clip != null)
         {
             sourceToUse.PlayOneShot(clip);
         }
         else
         {
-            if (sourceToUse == null) UnityEngine.Debug.LogWarning("AudioManager: No se puede reproducir SFX. El AudioSource designado no está asignado o disponible (efectosSonidoSource o el específico).");
-            if (clip == null) UnityEngine.Debug.LogWarning("AudioManager: No se puede reproducir SFX. El AudioClip no está asignado (variable pública de clip vacía en el Inspector para el método llamado).");
+            if (sourceToUse == null) UnityEngine.Debug.LogWarning("AudioManager: No se puede reproducir SFX. El AudioSource designado no está asignado.");
+            if (clip == null) UnityEngine.Debug.LogWarning("AudioManager: No se puede reproducir SFX. El AudioClip para el método llamado es nulo.");
         }
     }
 
-    // SFX Originales
     public void PlayAbrirPuerta() => PlaySFX(abrirPuertaClip);
     public void PlayCerrarPuerta() => PlaySFX(cerrarPuertaClip);
     public void PlayRecogerObjeto() => PlaySFX(recogerObjetoClip);
-
-    // Nuevos SFX Solicitados
     public void PlayPapel() => PlaySFX(papelClip);
     public void PlayGritoEstatua() => PlaySFX(gritoEstatuaClip);
     public void PlaySonidoMuerte() => PlaySFX(sonidoMuerteClip);
@@ -166,13 +141,19 @@ public class AudioManager : MonoBehaviour
     public void PlaySonidoBolaEspina() => PlaySFX(sonidoBolaEspinaClip);
     public void PlaySonidoFinalBueno() => PlaySFX(sonidoFinalBuenoClip);
 
-
-    // --- Métodos de control para Sonidos Continuos ---
     public void IniciarMusicaPersecucion()
     {
-        if (musicaPersecucionSource != null && musicaPersecucionClip != null && !musicaPersecucionSource.isPlaying)
+        if (musicaPersecucionSource != null && musicaPersecucionClip != null)
         {
-            musicaPersecucionSource.Play();
+            if (!musicaPersecucionSource.isPlaying)
+            {
+                musicaPersecucionSource.Play();
+                UnityEngine.Debug.Log("AudioManager: Iniciando música de persecución.");
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.LogWarning("AudioManager: No se puede iniciar música de persecución. Source o Clip no asignados.");
         }
     }
 
@@ -181,6 +162,7 @@ public class AudioManager : MonoBehaviour
         if (musicaPersecucionSource != null && musicaPersecucionSource.isPlaying)
         {
             musicaPersecucionSource.Stop();
+            UnityEngine.Debug.Log("AudioManager: Deteniendo música de persecución.");
         }
     }
 
@@ -200,32 +182,31 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    // --- Métodos de Control de Volumen ---
+    // <--- MÉTODO NUEVO PARA DETENER SONIDOS CONTINUOS --->
+    public void DetenerTodosLosSonidosContinuos()
+    {
+        UnityEngine.Debug.Log("AudioManager: Deteniendo todos los sonidos continuos...");
+        if (latidoCorazonSource != null && latidoCorazonSource.isPlaying) latidoCorazonSource.Stop();
+        if (ambientacion1Source != null && ambientacion1Source.isPlaying) ambientacion1Source.Stop();
+        if (ambientacion2Source != null && ambientacion2Source.isPlaying) ambientacion2Source.Stop();
+        if (musicaPersecucionSource != null && musicaPersecucionSource.isPlaying) musicaPersecucionSource.Stop();
+
+        
+    }
+
     public void SetLatidoVolume(float volume)
     {
-        if (latidoCorazonSource != null)
-        {
-            latidoCorazonSource.volume = Mathf.Clamp01(volume);
-        }
+        if (latidoCorazonSource != null) latidoCorazonSource.volume = Mathf.Clamp01(volume);
     }
 
     public void SetMusicaPersecucionVolume(float volume)
     {
-        if (musicaPersecucionSource != null)
-        {
-            musicaPersecucionSource.volume = Mathf.Clamp01(volume);
-        }
+        if (musicaPersecucionSource != null) musicaPersecucionSource.volume = Mathf.Clamp01(volume);
     }
 
     public void SetVolumenGeneralSFX(float volume)
     {
-        if (efectosSonidoSource != null)
-        {
-            efectosSonidoSource.volume = Mathf.Clamp01(volume);
-        }
-        if (efectosSonidoSource2 != null) // También al secundario si existe
-        {
-            efectosSonidoSource2.volume = Mathf.Clamp01(volume);
-        }
+        if (efectosSonidoSource != null) efectosSonidoSource.volume = Mathf.Clamp01(volume);
+        if (efectosSonidoSource2 != null) efectosSonidoSource2.volume = Mathf.Clamp01(volume);
     }
 }
